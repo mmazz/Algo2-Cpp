@@ -7,7 +7,20 @@
 
 \begin{document}
 \section{Base}
+\subsection{Scope}
+Algo importante de entender es el scope.
+No es otra cosa que el alcance que tienen nuestras variables y funciones.
+Es decir si nosotros inicializamos una variable (en el stack) en una funcion,
+apenas termine esa funcion esa variable va a desaparecer.
+Siempre funciona de afuera hacia adentro.
+Es decir, si una funcion A llama a una funcion B, la funcion B, va a poder
+acceder a las variables de A pero no al reves.
+Otra cosa que es importante, las llaves {}  me definen un scope.
+Si yo en el codigo encierro algo entre llaves, eso me esta generando un nuevo scope.
+En el caso del stack, lo que estaria diciendo es que una vez que el codigo sale
+de esas llaves, las cosas que defini ahi adentro de borran.
 
+\subsection{Extra}
 Es un arreglo de Bytes (8 Bits).
 Cada Byte tiene una \textbf{unica} dirección.
 
@@ -90,6 +103,31 @@ Podemos hacer lo mismo en el \textit{heap}, agregando el caso de doble puntero.
    delete[] buffer;
 \end{lstlisting}
 
+\paragraph{Arrow operator}
+Por ultimo, hay dos formas deferenciar un puntero para hacer algo.
+Supongamos que tengo un puntero que apunta a un objeto,
+si quiero llamar un metodo de ese objeto puedo hacerlo de dos formas.
+Basicamente el operador flecha deferencia al puntero y le aplica el metodo
+que apunta la flecha.
+
+\begin{lstlisting}
+    int main(){
+        \\ dos formas de generarme un puntero a un objeto
+        Entity* ptr = new Entity();
+        Entity e;
+        Entity* ptr = &e;
+
+        \\formas analogocas de llamar a la funcion GetName() de un puntero
+        Entity& entity = *ptr;
+        entity.GetName();
+
+        ptr->GetName();
+        (*ptr).GetName();
+    }
+\end{lstlisting}
+
+
+
 \subsection{Referencia}:
 Son casi iguales a los punteros.
 Son una referencia a una variable.
@@ -145,6 +183,74 @@ La unica diferencia con los struct es que es todo publico por default.
 Existe por compatibilidad por C.
 En general se usa strcut para cosas sencillas y clases para cosas mas grandes.
 Ejemplo si ya uso herencia, por convencion usamos clase.
+
+En una clase, los metodos y demas, estan siempre siendo referenciados a la instancia.
+Es como si siempre tendrian el self.metodo de python.
+\begin{lstlisting}
+    class Vector2{
+        float x, y;
+
+        Vector2(float x, float y): x(x), y(y) {}
+
+        Vector2 Add(const Vector2& other) const{
+            return Vector2(x + other.x, y + other.y);
+        }
+
+        Vector2 operator+(const Vector2& other) const{
+            return Add(other); \\ Es como si tuviera self.Add(other)
+        }
+    }
+\end{lstlisting}
+Analogo pero a la inversa
+\begin{lstlisting}
+    class Vector2{
+        float x, y;
+
+        Vector2(float x, float y): x(x), y(y) {}
+
+        Vector2 operator+(const Vector2& other) const{
+            return Add(other); \\ Es como si tuviera self.Add(other)
+        }
+
+        Vector2 Add(const Vector2& other) const{
+            return Vector2(x + other.x, y + other.y);
+        }
+
+    }
+\end{lstlisting}
+\paragraph{This operator}
+Es un puntero a la instancia actual.
+\begin{lstlisting}
+    voird PrintEntity(const Entiry& e);
+
+    class  Entiry{
+        public:
+            int x;
+
+            Entity(int x, int y){
+                Entity* e = this;
+
+                \\Quiero hacer x=x, 3 formas
+                \\ que la variable publica es igual a la variable que le paso
+                e->x = x;
+                this->x = x;
+                (*this).x = x;
+
+                \\ Entity&e = *this; seria esto
+                PrintEntity(*this);
+
+            }
+
+            int GetX() const{
+                const Entity* e = this; \\ por que esta dentro de un metodo const
+                return x;
+            }
+    }
+
+    void PrintEntity(const Entity& e){
+        \\metemos alguna forma elegante de imprimir...
+    }
+\end{lstlisting}
 
 \subsection{static}
 Se distingue en dos tipos de uso, variables afuera de una clase o dentro.
@@ -299,6 +405,28 @@ Hay algo en C++ que se llama mutable, que lo que hace es ponerse al principio de
 la declaracion de una variable (va antes del tipo) y lo que hace es que ESA variable
 pueda ser modificada aun en un metodo con const.
 
+\subsection{Constructores}
+Basicamente es algo automatico para no tener que manualmente inicializar las
+variables de una clase en cada instancia.
+Es lo mismo a armar un metodo al que haga algo y lo llame explicitamente cada
+vez que hago una instancia nueva.
+El constructor es eso pero sin tener que llamarlo explicitamente.
+No tiene tipo de retorno y el nombre tiene que ser igual que la clase.
+
+Aun si no pongo el constructor, por default hay uno, pero no hace nada.
+Ademas puedo tener diferentes constructores siempre y cuando el input que le
+doy sea diferente.
+C++ va a usar el adecuado segun como estemos creando la clase (que inputs le
+estamos dando).
+
+
+
+\subsection{Destructores}
+Como su nombre indica, se llama automaticamente al destruir un objeto.
+Por ejemplo si tengo un objeto en el \texttt{stack}, al finalizar el scope automaticamente
+se va a llamar al destructor.
+Si tengo un objeto en el \texttt{heap} y hago delete se va a llamar al destructor.
+Se escribe igual que el constructor pero con el tilde antes $\sim$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -313,6 +441,10 @@ Estas estan en la RAM.
 En general nos vamos a concentrar en la diferencia entre el \texttt{Stack} y el \texttt{Heap}
 En el inicio del programa estas dos secciones de memoria ya estan asignadas y
 separadas (algo asi... dar mas info).
+El \texttt{stack} es mucho mas chico que el \texttt{heap}.
+Pero es mas lento ya que tiene que ir a buscar donde encuentra x cantidad de
+memoria contigua.
+
 \begin{enumerate}
     \item Memoria global.
         Es el área en la que están almacenadas las variables
@@ -339,6 +471,11 @@ separadas (algo asi... dar mas info).
         saben si se necesitan, e incluso tampoco se sabe su tamaño hasta que el
         programa está ejecutando.
 \end{enumerate}
+
+Como regla general, SIEMPRE usemos el \texttt{stack}, a menos que querramos traer
+algo muy pesado (mas de 10MB) o que queremos que la vida util de la variable o
+lo que fuera sea mas larga que el scope.
+Para el resto de los casos, \texttt{stack}.
 
 El heap tiene dos operaciones para administrar la memoria dinamica.
 \begin{itemize}
@@ -393,8 +530,24 @@ pero otras no.
 El heap es distinto, no estan estan de forma ordenada ni se borran de forma
 automatica.
 Un array obviamente si esta ordenado, ya que se pidio de una vez ese espacio en memoria.
+Si quiero guardar cosas muy grandes, como el \texttt{stack} es chico, quizas
+convenga guardarlo en el \texttt{heap}.
+La gran diferencia de como se usa es que primero necesito poner el keyword NEW
+y lo que me devuelve es un puntero, en donde se va a alocar lo que quiero.
 
+El keyword NEW es un operador, es decir lo podermos sobrecargar si quisieramos.
+NEW basicamente pide un espacio de memoria del tama\~no que le pedimos.
+Hay una diferencia entre llamar $new$ $type$ y $new$ $type[]$.
+La unica diferencia es que en una tenes que usar despues la funcion \texttt{delete}
+sin corchetes y en la otra con.
 
+\begin{lstlisting}
+    Entity* e = new Entity(); \\ la diferencia es que aca se llama al constructor
+    Entity* e = (Entity*)malloc(sizeof(Entity)); \\ aca NO se llama al constructor
+\end{lstlisting}
+
+Delete es solamente un operador que llama a la funcion free, que agrega a una lista
+de memoria libre la que le estamos pasando, pudiendose asi usarse.
 
 \paragraph{Problemas}
 \begin{enumerate}
