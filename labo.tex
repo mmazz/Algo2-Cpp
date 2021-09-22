@@ -5,7 +5,9 @@
 \usepackage{graphicx}
 \usepackage{listings}
 
+
 \begin{document}
+\tableofcontents
 \section{Base}
 \subsection{Scope}
 Algo importante de entender es el scope.
@@ -20,11 +22,14 @@ Si yo en el codigo encierro algo entre llaves, eso me esta generando un nuevo sc
 En el caso del stack, lo que estaria diciendo es que una vez que el codigo sale
 de esas llaves, las cosas que defini ahi adentro de borran.
 
-\subsection{Extra}
-Es un arreglo de Bytes (8 Bits).
-Cada Byte tiene una \textbf{unica} dirección.
 
-\paragraph{Ejemplo}: Int es de 4 Bytes, entonces al crear un entero, C++
+\subsection{Puntero}
+Antes de arrancar debemos tener un par de nociones.
+Un espacio en memoria tiene una dirreccion \textbf{\'unica}
+teniendo una memoria de un Byte (8 Bits).
+Cada tipo de dato reserva en memoria una x cantidad de memorias contiguas.
+
+\paragraph{Ejemplo}: El tipo Int es de 4 Bytes, entonces al crear un entero, C++
 me reserva si o si 4 espacios de memoria contiguas.
 En cambio al crear un Char, me guarda uno solo.
 \vspace{.5cm}
@@ -32,50 +37,39 @@ En cambio al crear un Char, me guarda uno solo.
 No podemos decir a cual dirección quiero que se guarden las variables.
 Pero si puedo saber en que dirección están.
 De ahi la nocion de puntero.
-
-El tipo T* es el tipo de los punteros a T.
-Donde un puntero a T representa una direccion de memoria en la que
-(presumiblemente) hay almacenado un valor de tipo T.
-
-\paragraph{Ej:} int*: es un puntero a int.
-int**: puntero a puntero.
-\vspace{.5cm}
-
-\paragraph{Forma de operar:}
-\begin{itemize}
-    \item Dirección de memoria de una variable. (\&\textbf{variable})
-Si \textbf{variable} es de tipo T.
-\&\textbf{variable} es de tipo T*.
-Es decir me dice cual es la dirección que tiene esa variable.
-Con esto básicamente me creo un puntero.
-    \item Valor almacenado en una dirección de memoria. (operador de desreferencia)
-        (*\textbf{puntero}).
-Si \textbf{puntero} es de tipo T*.
-*\textbf{puntero} es de tipo T.
-Básicamente me dice el valor que tiene el lugar donde esta apuntando el puntero.
-\end{itemize}
-
-Si tengo un puntero, puedo en vez de usar el operador desreferencia, puedo usar
-el operador  ''-$>$ ''.
-Seria algo como, atraves del puntero p -$>$ x accedo a la variable que apunta.
-
-\paragraph{Puntero nulo} = nullptr.
-Puntero que no apunta a ninugn lado.
-\subsection{Puntero}: Es una direccion de memoria representada por un entero en
+ Es una direccion de memoria representada por un entero en
 hexagesimal y las podemos/debes conciderar como varibles.
 Podemos pensar a la memoria como un arreglo unidimensional de Bytes.
 Los tipos no importan para entender punteros.
 Basicamente le decimos que tipo de datos suponemos que hay en esa direccion.
 La idea es hacernos la vida facil pero mas alla de eso no importan.
 
+El tipo de datos T* es el tipo de los punteros que apuntan a un tipo de dato T.
+Donde un puntero a T representa una direccion de memoria en la que
+(presumiblemente) hay almacenado un valor de tipo T.
+Este puntero apunta a la primer direccion.
+En el caso de un Int que son 4, apunta a la primera.
+
+\paragraph{Ej:} int*: es un puntero a Int.
+int**: puntero a puntero de Int.
+\vspace{.5cm}
+
 Para \textbf{crear} un puntero lo hago con el tipo de elemento T y * (T* name).
-El valor 0, NULL o nullptr, son todos analogos y son un puntero indefinido.
+Es decir es la direccion de memoria que tiene guardado un elemento de tipo T.
 Para poder conocer la direccion donde esta alocada una variable lo hago con el simbolo
 \& enfrente a dicha variable.
 \begin{lstlisting}
     int var = 8;
     void* ptr = &var; \\ muestra que el tipo en realidad no importa
 \end{lstlisting}
+\paragraph{Puntero nulo}: Existen algunas formas de tener un puntero vacio o indefinido.
+Esto son con las palabras claves de \texttt{nullptr} \texttt{NULL} o directamente 0.
+Es un puntero que no apunta a ninugn lado.
+
+
+\paragraph{Forma de operar:}
+
+
 
 Si por ejemplo quiero declarar varios punteros en una misma linea,
 tengo que agregar el simbolo para cada una de ellas.
@@ -95,7 +89,7 @@ le asigno un nuevo valor, este valor se va a tomar como un entero.
 
 Podemos hacer lo mismo en el \textit{heap}, agregando el caso de doble puntero.
 \begin{lstlisting}
-    char* bugger = new char[8];
+    char* buffer = new char[8];
     memset(buffer, 0, 8); \\ forma de asignar algo a un puntero. Valor 0 en 8
                           \\ posiciones.
     char** ptr = &buffer; \\Me da un puntero a la direccion donde esta
@@ -106,7 +100,7 @@ Podemos hacer lo mismo en el \textit{heap}, agregando el caso de doble puntero.
 \paragraph{Arrow operator}
 Por ultimo, hay dos formas deferenciar un puntero para hacer algo.
 Supongamos que tengo un puntero que apunta a un objeto,
-si quiero llamar un metodo de ese objeto puedo hacerlo de dos formas.
+si quiero llamar un metodo o atributo de ese objeto puedo hacerlo de dos formas.
 Basicamente el operador flecha deferencia al puntero y le aplica el metodo
 que apunta la flecha.
 
@@ -128,10 +122,10 @@ que apunta la flecha.
 
 
 
-\subsection{Referencia}:
+\subsection{Referencia}
 Son casi iguales a los punteros.
 Son una referencia a una variable.
-No se puede inicializar una refernecia vacia y luego de inicializarla no la puedo
+No se puede inicializar una referencia vacia y luego de inicializarla no la puedo
 cambiar de referencia.
 Y una referencia no es otra cosa que un alias, ya que la referencia no se guarda
 en memoria, no es una copia ni nada.
@@ -168,6 +162,12 @@ Diferencia:
         *ref = 1; \\ b = 1
     }
 \end{lstlisting}
+
+Si tengo dos variables int, $x$ e $y$ y digo que una referencia r sea igual a x.
+Luego si digo que r sea igual a y, lo que sucede no es que ahora r es referencia de
+y, si no que a x le asigna el valor de y. Ya que r es una referencia de x para el
+largo de su ciclo de vida.
+
 
 \section{Clases}
 Hay que pensarlas como que nos deja crear nuevos tipos de variables.
@@ -351,7 +351,13 @@ Ademas puedo decir que tipo son los enum, por default es int.
 
 
 Existe la clase enum la cual nos permite definir namespace.
+
+
+
+
+
 \subsection{Const}
+El cost hay que pensarlo como un nuevo tipo de variable.
 El const hay que pensarla como una promesa.
 Que prometemos hacer algo constante, aunque facilmente podemos romper esa promesa.
 
@@ -369,6 +375,10 @@ El const tambien se usa en el contexto de clases.
 Por ejemplo si en un metodo le agregamos al final const, lo que dice es que ese
 metodo no va a poder cambiar ninguna variable de la clase, basicamente va a ser
 un metodo de lectura solo, por ejemplo un getter.
+Lo que hace es que cuando con objeto que no es const llamo un metodo const lo que hace
+es hacerme el objeto const en esa llamada y no me deja hacer modificaciones
+a la instancia.
+Es decir me transforma el \textit{this} (self)  en const.
 
 Queda el por que ponerlo como const.
 En la mayoria de casos, uno quiere usar funciones que su input sea por referencia
@@ -419,6 +429,41 @@ doy sea diferente.
 C++ va a usar el adecuado segun como estemos creando la clase (que inputs le
 estamos dando).
 
+Cuando yo desclaro una clase en mi codigo, automaticamente se me reserva en la pila
+memoria para todas las variables que estan declaradas de forma privada dentro de
+la clase.
+Si no tengo un constructor, esos valores quedan indefinidos (basura).
+
+Ej:
+
+\begin{lstlisting}
+    class A{                            a.x_  | ??
+        public:                         a.s_  | ??
+        //...                           a.fs_ | ??
+        private:                        ------------
+            int x_;                     j     | 10
+            string s_;                  ------------
+            vector<float> fs_;                | pila
+    };
+    int main(){
+        int j = 10;
+        A a = A();
+    }
+\end{lstlisting}
+Las consideraciones especiales del constructor.
+\begin{itemize}
+    \item Se escriben con el nombre del tipo.
+    \item no tienen tipo de retorno (esta implicito).
+    \item Tres formas de constructores:(Ej, clase Horario)
+        \begin{itemize}
+            \item Por defecto: Horario();
+            \item Por copia: Horario(const Horario\&);
+            \item Con parametro: Horario(int hora,...);
+        \end{itemize}
+    \item Cuando defino un constructor desaparece el cosntructor sin parametros
+            implicito.
+\end{itemize}
+
 
 
 \subsection{Destructores}
@@ -427,6 +472,64 @@ Por ejemplo si tengo un objeto en el \texttt{stack}, al finalizar el scope autom
 se va a llamar al destructor.
 Si tengo un objeto en el \texttt{heap} y hago delete se va a llamar al destructor.
 Se escribe igual que el constructor pero con el tilde antes $\sim$.
+
+\subsection{Struct y member class}
+Los struct son iguales que las clases, con la diferencia que las cosas que escribo
+dentro de strcut son publicas.
+En las clases por defecto son privadas.
+El uso que se le suele dar es para estructuras de datos sencillas, cuando no
+necesitamos un modulo armado al 100\%.
+En general para cosas mas chiquitas y en general todo publico.
+Un uso comun es para armarme tuplas donde le pongo nombre a cada elemento.
+
+Otro uso importante, es usar a struct dentro de una clase.
+Por ejemplo en una clase Lista, puedo armar un struct Nodo adentro.
+Podria armar un struct Nodo afuera, pero si ademas quiero un struct Nodo
+para otra clase, ej conjunto, la cual tendra diferentes cosas, empeizan a pisarse
+y necesitaria armar con diferente nombre dos struct Nodos.
+Como en ambos casos el struct Nodo tiene sentido solo en contexto de cada clase,
+armo el struct dentro de ese contexto/clase.
+Un ejemplo puede verse en \ref{fig:nodo}.
+
+\begin{lstlisting}
+    class Lista{
+        public:
+            //...
+
+            void agregar(int v);
+
+            struct Nodo{
+                int valor;
+                Nodo* siguiente;
+                Nodo(int valor);
+            };
+
+            private:
+                Nodo* primero_;
+        };
+        // Constructor de Nodo
+        Lista::Nodo::Nodo(int v): valor(v), siguiente(nullptr){}
+
+        void Lista::agregar(int v){
+            primer_ = new Nodo(v);
+        }
+\end{lstlisting}
+
+
+
+En general, en estos casos, tambien se aclara que ese struct es privado dentro
+de la clase.
+La clase no tiene por si misma las cosas de la struct.
+
+\vspace{0.5cm}
+\subsection{friend}: Se le dice a la clase, que funciones (o quizas algo mas, chequear),
+tiene  acceso a la parte privada de su clase.
+Esto se declara en public, ''friend int main();''.
+Donde ahi dice que desde la funcion main() se puede acceder a la parte privada,
+pudiendo asi hacer ''List::Nodo n(5);''.
+Donde recordemos que la struct nodo esta en la parte privada.
+Otro uso es hacer friend a los operadores externos como, ''='', ''$<<$'', etc.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -565,24 +668,6 @@ al \textbf{destructor} del tipo T.
 El destructor de una clase T se llama T::~T(), el cual esta en public de la clase.
 El programador nunca debe llamar explicitameante al destructor.
 
-\subsection{Referencias}
-Una variable local o parametro se puede declarar como una referencia a un valor de
-tipo T, dandole tipo T\&.
-Las referencias son punteros que no puede cambiar el lugar al que apunta
-durante su ciclo de vida.
-
-Ejemplo:
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.9\textwidth]{referencia.png}
-    \caption{Referencia vs puntero  haciendo lo mismo.}
-    \label{fig:ref}
-\end{figure}
-
-Si tengo dos variables int, $x$ e $y$ y digo que una referencia r sea igual a x.
-Luego si digo que r sea igual a y, lo que sucede no es que ahora r es referencia de
-y, si no que a x le asigna el valor de y. Ya que r es una referencia de x para el
-largo de su ciclo de vida.
 
 \paragraph{Devolucion de reusultados por referencia}.
 El mejor ejemplo es el operador [], el cual esta dandole una referencia
@@ -600,71 +685,4 @@ Y pasarlo por referencia puede ser inseguro ya que nada nos asegura que esa func
 internamente no nos modifique al vector.
 Por eso existe por referencia constante.
 
-\section{Constructores}
-Cuando yo desclaro una clase en mi codigo, automaticamente se me reserva en la pila
-memoria para todas las variables que estan declaradas de forma privada dentro de
-la clase.
-Si no tengo un constructor, esos valores quedan indefinidos (basura).
-
-Ej: \ref{fig:const}.
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.7\textwidth]{constructor.png}
-    \caption{Ejemplo de la reserva de memoria al declarar una clase.}
-    \label{fig:const}
-\end{figure}
-
-Las consideraciones especiales del constructor.
-\begin{itemize}
-    \item Se escriben con el nombre del tipo.
-    \item no tienen tipo de retorno (esta implicito).
-    \item Tres formas de constructores:(Ej, clase Horario)
-        \begin{itemize}
-            \item Por defecto: Horario();
-            \item Por copia: Horario(const Horario\&);
-            \item Con parametro: Horario(int hora,...);
-        \end{itemize}
-    \item Cuando defino un constructor desaparece el cosntructor sin parametros
-            implicito.
-\end{itemize}
-
-\subsection{Struct y member class}
-Los struct son iguales que las clases, con la diferencia que las cosas que escribo
-dentro de strcut son publicas.
-En las clases por defecto son privadas.
-El uso que se le suele dar es para estructuras de datos sencillas, cuando no
-necesitamos un modulo armado al 100\%.
-En general para cosas mas chiquitas y en general todo publico.
-Un uso comun es para armarme tuplas donde le pongo nombre a cada elemento.
-
-Otro uso importante, es usar a struct dentro de una clase.
-Por ejemplo en una clase Lista, puedo armar un struct Nodo adentro.
-Podria armar un struct Nodo afuera, pero si ademas quiero un struct Nodo
-para otra clase, ej conjunto, la cual tendra diferentes cosas, empeizan a pisarse
-y necesitaria armar con diferente nombre dos struct Nodos.
-Como en ambos casos el struct Nodo tiene sentido solo en contexto de cada clase,
-armo el struct dentro de ese contexto/clase.
-Un ejemplo puede verse en \ref{fig:nodo}.
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.7\textwidth]{nodo.png}
-    \caption{Ejemplo de struct dentro de clase, y el contructor de nodo.}
-    \label{fig:nodo}
-\end{figure}
-
-
-En general, en estos casos, tambien se aclara que ese struct es privado dentro
-de la clase.
-La clase no tiene por si misma las cosas de la struct.
-
-\vspace{0.5cm}
-\paragraph{friend}: Se le dice a la clase, que funciones (o quizas algo mas, chequear),
-tiene  acceso a la parte privada de su clase.
-Esto se declara en public, ''friend int main();''.
-Donde ahi dice que desde la funcion main() se puede acceder a la parte privada,
-pudiendo asi hacer ''List::Nodo n(5);''.
-Donde recordemos que la struct nodo esta en la parte privada.
-Otro uso es hacer friend a los operadores externos como, ''='', ''$<<$'', etc.
 \end{document}
-
