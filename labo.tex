@@ -4,10 +4,11 @@
 \usepackage{sectsty}
 \usepackage{graphicx}
 \usepackage{listings}
-
+\usepackage{amsmath}
 
 \begin{document}
 \tableofcontents
+\section{Buenas Practicas}
 \section{Base}
 \subsection{Scope}
 Algo importante de entender es el scope.
@@ -169,6 +170,101 @@ y, si no que a x le asigna el valor de y. Ya que r es una referencia de x para e
 largo de su ciclo de vida.
 
 
+\subsection{iteradores}
+Es una forma de poder iterar diferentes tipos de colecciones en C++.
+Ejemplo, Arrays, List, Dicc, etc.
+El iterador seria una interfaz comun para todos estos tipos.
+Un iterador es una clase en si, y nos genera un puntero que apunta a un elemento de la coleccion.
+Se recorre de algun orden (depende del tipo de coleccion) y existe un elemento
+primero y uno final.
+Si arranco a iterar, al terminar y pasarme de la coleccion es la forma de saber que
+termino.
+
+Los operaciones que tiene el iterador son:
+\begin{itemize}
+    \item Estoy posicionado sobre un elemento?
+    \item Obtener el elemnto actual.
+    \item Avanzar al siguiente elemento.
+    \item Algunos casos: Retroceder al elemento anterior. (Bidireccional)
+    \item Algunos casos: Modificar el valor del elemento actual.   (Mutable)
+\end{itemize}
+
+Si T es un tipo de coleccion, tengo lo siguiente
+\begin{itemize}
+    \item T::iterator, T::const\_iterator: Tipo de los iteradores mutables e inmutables.
+        Ej: vector$<$int$>$::iterator es un tipo.
+    \item T::value\_type: Tipo de los elementos que almacena la coleccion.
+        Ej: vector$<$int$>$::value\_type es int.
+\end{itemize}
+
+Como cada coleccion  es diferente y va a tener comportamientos internos diferentes para
+los iteradores, es por eso que cuando genero uno es parte de la clase tipo que quiero.
+La version de iterador const\_iterator es el inmutable y no es un lvalue.
+Para crear un iterador este se lo pido directamente a la coleccion.
+
+Si tengo una coleccion \textit{col}, entonces tengo:
+\begin{itemize}
+    \item col.begin(): iterador posicionado sobre el primer elemento
+        de la coleccion.
+    \item col.end(): iterador posicionado sobre el final de la coleccion.
+        (\textbf{Despues del ultimo elemento}).
+\end{itemize}
+
+Si col es const, al pedir una de estas funciones me va a devolver un const\_iterator.
+Si tenemos que it es de tipo T::iterator (o su version const),
+como son puteros, para acceder al elemento que estoy apuntando basca con *it.
+Funciona el operador flecha y para avanzar o retroceder hago ++it p --it.
+Otras operaciones:
+
+\begin{itemize}
+    \item T::iterator T::insert(T::iterator pos, const T::value\_type\& elem):
+        inserta un elemento en la posicion \texttt{anterior} a la indicada.
+        Te devuelve un iterador a donde insertamos.
+    \item T::itearator T::erase(T::iterator pos): Elimina el elemento en la posicion
+        indicada. Me devuelve la posicion siguiente a la que acabo de borrar.
+\end{itemize}
+
+Por ultimo, por como funciona C++, al usar template, cuando digo que una variable
+es del tipo T::value\_type o el que fuera, tengo que aclararle que esa variable es
+de un tipo, y eso se aclara al principio poniendo la palabra clave \texttt{typename}.
+Que le dice al compilador que ''confie'' que lo que sigue es un tipo.
+
+\subsection{Lambda}
+Una funcion lambda es basicamente es como una funcion anonima.
+Es una forma de crear una funcion sin tener que hacerlo explicitamente.
+Son utiles como funciones descartables.
+Cuando tengo una funcion de puntero puedo usar un lambda.
+
+La pinta de una funcion lambda es la siguiente:
+\begin{align*}
+    T func = [\textit{capture}](\textit{params})\textit{specifier}\{\textit{body}\}
+\end{align*}
+
+El caputre es para manipular variables que estan fuera de la funcion lambda.
+Si por ejemplo quiero pasar todo lo que hay, puedo pasarlo por referencia poniendo
+un \& o por copia pasandole un =.
+Tambien puedo escribir directamente las variables que quiero y si las quiero por
+referencia pongo adelante \&.
+Separo por coma si tengo varias variables las separo por comas.
+
+Si lo que le estoy pasando lo quiero poder modificar dentro, tengo que poner
+la keyword \texttt{mutable} entre los params y el body (entre el parentesis y la
+llave) en donde dice specifier.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Tipos de Datos}
+\subsection{Arrays}
+
+\subsection{Lista}
+\subsection{Tupla}
+\subsection{Arboles}
+
+\subsection{Pila}
+\subsection{Cola}
+\subsection{Cola de prioridad}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Clases}
 Hay que pensarlas como que nos deja crear nuevos tipos de variables.
 Las variables que estan definidas como clases, son las que se conocen como objetos.
@@ -251,6 +347,35 @@ Es un puntero a la instancia actual.
         \\metemos alguna forma elegante de imprimir...
     }
 \end{lstlisting}
+
+\subsection{Visibilidad}
+Existen solo 3 formas en C++, private, public y protected.
+Si una clase tiene un metodo o un atributo privado, lo que significa es que solamente
+la clase puede acceder a estas cosas (u otra clase friend).
+NO una instancia, solo la clase.
+Incluso si esta clase es padre y un hijo hereda esta clase, tampoco va a poder
+acceder a lo privado.
+Despues tenemos protected. Es igual a private pero que ahora acpeta que los
+herederos puedan acceder a lo protected.
+
+El tema es de visibilidad es puramente sintactico y de un buen uso de programacion.
+No afecta en nada en la optimizacion del programa.
+Basciamente si vemos una nueva clase, lo que esta en public es lo que deberiamos
+poder usar.
+Nos dice como deberiamos usar esa clase.
+
+Si por ejemplo tengo una clase UI (user interface) y tengo una variable de la
+posicion en x que esta un boton.
+Si un usuario va y cambia esa variable, seguramente no afecte nada ya que para
+que el cambio se realice quizas halla que hacer algo mas, como decirle a la clase
+que se actualice o algo.
+Entonces lo que puedo hacer es hacer esa variable x privada, y hacer un metodo
+publico que tome de parametro la nueva posicion de esa variable y dentro de este
+la cambie y realice todo el resto de cosas necesarias para cambiar el boton a la
+nueva posicion.
+
+
+
 
 \subsection{static}
 Se distingue en dos tipos de uso, variables afuera de una clase o dentro.
@@ -365,10 +490,15 @@ Casos en variables:
 \begin{itemize}
     \item const type* a =...: Aca el const dice que donde apunta el puntero es constante
             y no el puntero en si. Puedo cambiar a que apunte a otro lado.
+            Es decir lo que devuelve esto es const.
     \item type const* a=...: Exactamente igual al caso anterior.
     \item type* const a =...: Aca estoy diciendo que es constante el puntero, pero si
-        puedo modificar lo que esta en la  direccion que apunta.
+        puedo modificar lo que esta en la direccion que apunta.
+        Es decir lo que estoy creando es const.
     \item const type* const a =...: La combinacion de ambos casos.
+    \item type func() const: Dentro de una clase, este metodo lo que dice es que
+        el \texttt{this} es const. Osea todas las variables privadas y publicas
+        se hacen const.
 \end{itemize}
 
 El const tambien se usa en el contexto de clases.
@@ -414,6 +544,9 @@ Ej:
 Hay algo en C++ que se llama mutable, que lo que hace es ponerse al principio de
 la declaracion de una variable (va antes del tipo) y lo que hace es que ESA variable
 pueda ser modificada aun en un metodo con const.
+
+
+
 
 \subsection{Constructores}
 Basicamente es algo automatico para no tener que manualmente inicializar las
@@ -464,7 +597,9 @@ Las consideraciones especiales del constructor.
             implicito.
 \end{itemize}
 
-
+Un objeto lo puedo construir tanto en el stack como en el heap.
+Para contruirlo en el heap simplemente uso el operador new y ademas lo creo como
+un puntero.
 
 \subsection{Destructores}
 Como su nombre indica, se llama automaticamente al destruir un objeto.
@@ -579,6 +714,7 @@ Como regla general, SIEMPRE usemos el \texttt{stack}, a menos que querramos trae
 algo muy pesado (mas de 10MB) o que queremos que la vida util de la variable o
 lo que fuera sea mas larga que el scope.
 Para el resto de los casos, \texttt{stack}.
+Cuando una aplicacion termina, el sistema operativo se encarga de limpiar el heap.
 
 El heap tiene dos operaciones para administrar la memoria dinamica.
 \begin{itemize}
@@ -685,4 +821,23 @@ Y pasarlo por referencia puede ser inseguro ya que nada nos asegura que esa func
 internamente no nos modifique al vector.
 Por eso existe por referencia constante.
 
+\subsection{Ejemplos de mal}
+\begin{lstlisting}
+    int* createArray(){
+        int array[50];
+        return array;  // esta en el stack, apenas sale se destruye
+    }
+    int main(){
+        int* a = createArray();
+    }
+\end{lstlisting}
+
+Esto falla ya que lo que estamos haciendo es crear una variable en el stack dentro
+del scope de createArray y entonces cuando sale de la propia funcion se destruye
+y entonces no le estoy asignado nada a a.
+
+Para solucionarlo podemos pensarlo de dos formas.
+O lo paso a la heap, haciendo simplemente: \texttt{int* array = new int[50]}.
+O creando dentro de main el array y usar una funcion que me la modifique o algo.
+Pero que se cree en el stack dentro del scope de main para que no se destruya.
 \end{document}
